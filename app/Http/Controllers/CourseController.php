@@ -24,9 +24,9 @@ class CourseController extends Controller
         //是否分頁
         $limit = isset($request->limit) ? $request->limit:null;
         if (empty($limit)) {
-            $courses = Course::get();
+            $courses = Course::showTeacher()->get();
         } else {
-            $courses = Course::paginate($limit);
+            $courses = Course::showTeacher()->paginate($limit);
         };
 
         $data=[];
@@ -82,8 +82,9 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
+        $courses = Course::showTeacher($course->id);
         return response()->json(
-            ['data' => $course],
+            ['data' => $courses->get()],
             200
         );
     }

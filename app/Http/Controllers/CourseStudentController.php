@@ -123,9 +123,9 @@ class CourseStudentController extends Controller
     // 抓單一學生學生選課數量
     // student_id: 學生代號
     // 回傳選課數量
-    public static function courseListByStudent($student_id)
+    public static function courseListByStudent($studentId)
     {
-        $c_list = CourseStudent::where('student_id', '=', $student_id);
+        $c_list = CourseStudent::where('student_id', '=', $studentId);
         return [
             'count' => $c_list->count()
         ];
