@@ -11,8 +11,8 @@ class CourseController extends Controller
 {
     /**
      * 查詢全部課程列表
-     * limit 回傳資料是否分頁
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * limit: 回傳資料是否分頁
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -29,7 +29,13 @@ class CourseController extends Controller
             $courses = Course::paginate($limit);
         };
 
-        return response(['courses' => $courses], Response::HTTP_OK);
+        $data=[];
+        $data['courses'] = $courses;
+
+        return response()->json(
+            ['data' => $data],
+            200
+        );
     }
 
     /**
@@ -46,6 +52,9 @@ class CourseController extends Controller
      * 課程建立
      *
      * @param  \Illuminate\Http\Request  $request
+     * name: 名稱
+     * status: 狀態
+     * teacherId: 老師代號
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -58,7 +67,11 @@ class CourseController extends Controller
         $request['teacher_id'] = $request['teacherId'];
         unset($request['teacherId']);
         $course = Course::create($request->all());
-        return response($course, Response::HTTP_CREATED);
+
+        return response()->json(
+            ['data' => $course],
+            201
+        );
     }
 
     /**
@@ -69,7 +82,10 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-        return response($course, Response::HTTP_OK);
+        return response()->json(
+            ['data' => $course],
+            200
+        );
     }
 
     /**
@@ -88,6 +104,9 @@ class CourseController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Course  $course
+     * name: 名稱
+     * status: 狀態
+     * teacherId: 老師代號
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Course $course)
@@ -98,10 +117,16 @@ class CourseController extends Controller
             'teacherId' => 'integer'
         ]);
 
-        $request['teacher_id'] = $request['teacherId'];
-        unset($request['teacherId']);
+        if (isset($request['teacherId'])) {
+            $request['teacher_id'] = $request['teacherId'];
+            unset($request['teacherId']);
+        }
         $course->update($request->all());
-        return response($course, Response::HTTP_OK);
+
+        return response()->json(
+            ['data' => $course],
+            200
+        );
     }
 
     /**
@@ -115,6 +140,6 @@ class CourseController extends Controller
         //need to delete who is book this course
         CourseStudent::where('course_id', '=', $course->id)->delete();
         $course->delete();
-        return response(null, Response::HTTP_NO_CONTENT);
+        return response()->json([], 204);
     }
 }

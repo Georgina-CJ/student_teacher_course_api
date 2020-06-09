@@ -52,7 +52,7 @@ class Handler extends ExceptionHandler
             if ($exception instanceof ModelNotFoundException) {
                 return response()->json(
                     ['error' => '查詢不到資料'],
-                    Response::HTTP_NOT_FOUND
+                    404
                 );
             }
         }

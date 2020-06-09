@@ -33,6 +33,8 @@ class TeacherController extends Controller
      * 老師建立
      *
      * @param  \Illuminate\Http\Request  $request
+     * number: 編號
+     * name: 名稱
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,7 +44,10 @@ class TeacherController extends Controller
             'name' => 'required|string'
         ]);
         $teacher = Teacher::create($request->all());
-        return response($teacher, Response::HTTP_CREATED);
+        return response()->json(
+            ['data' => $teacher],
+            201
+        );
     }
 
     /**
@@ -90,9 +95,12 @@ class TeacherController extends Controller
         //need to search which crouse he teach
         $c_count = Course::where('teacher_id', '=', $teacher->id)->count();
         if ($c_count > 0) {
-            return response(['errMsg'=>'此老師還授課，無法刪除'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(
+                ['error' => '此老師還授課，無法刪除'],
+                422
+            );
         }
         $teacher->delete();
-        return response(null, Response::HTTP_NO_CONTENT);
+        return response()->json([], 204);
     }
 }

@@ -32,6 +32,8 @@ class StudentController extends Controller
      * 學生建立
      *
      * @param  \Illuminate\Http\Request  $request
+     * number: 編號
+     * name: 名稱
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +43,10 @@ class StudentController extends Controller
             'name' => 'required|string'
         ]);
         $student = Student::create($request->all());
-        return response($student, Response::HTTP_CREATED);
+        return response()->json(
+            ['data' => $student],
+            201
+        );
     }
 
     /**
@@ -89,9 +94,12 @@ class StudentController extends Controller
         //need to search which crouse is book
         $c_list = CourseStudentController::courseListByStudent($student->id);
         if ($c_list['count'] > 0) {
-            return response(['errMsg'=>'此學生有參與課程，無法刪除'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(
+                ['error' => '此學生有參與課程，無法刪除'],
+                422
+            );
         }
         $student->delete();
-        return response(null, Response::HTTP_NO_CONTENT);
+        return response()->json([], 204);
     }
 }

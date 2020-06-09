@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\CourseStudent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class CourseStudentController extends Controller
 {
@@ -12,6 +13,7 @@ class CourseStudentController extends Controller
      * 取得單一課程學生清單
      *
      * @param  \Illuminate\Http\Request  $request
+     * courseId: 課程代號
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -21,17 +23,30 @@ class CourseStudentController extends Controller
         ]);
 
         $c_id = isset($request->courseId) ? $request->courseId:null;
+
         if (!empty($c_id)) {
-            $student_list = CourseStudent::select('students.id', 'students.name', 'students.number')
+            $student_list = CourseStudent::select(
+                'courses.id as courseId',
+                'courses.name as courseName',
+                'courses.status as courseStatus',
+                'teachers.name as teacherName',
+                'students.name as studentName',
+                'students.number as studentNnmber'
+            )
+            ->join('courses', 'courses.id', '=', 'courses_students.course_id')
             ->join('students', 'students.id', '=', 'courses_students.student_id')
+            ->join('teachers', 'teachers.id', '=', 'courses.teacher_id')
             ->where('courses_students.course_id', '=', $c_id)
             ->get();
         };
 
-        return response([
-            'courseId' => $c_id,
-            'studentList' => $student_list
-        ], Response::HTTP_OK);
+        $data = [];
+        $data['studentList'] = $student_list;
+
+        return response()->json(
+            ['data' => $data],
+            200
+        );
     }
 
     /**
@@ -53,7 +68,10 @@ class CourseStudentController extends Controller
     public function store(Request $request)
     {
         $courseStudent = CourseStudent::create($request->all());
-        return response($courseStudent, Response::HTTP_CREATED);
+        return response()->json(
+            ['data' => $courseStudent],
+            201
+        );
     }
 
     /**
@@ -99,15 +117,16 @@ class CourseStudentController extends Controller
     public function destroy(CourseStudent $courseStudent)
     {
         $courseStudent->delete();
-        return response(null, Response::HTTP_NO_CONTENT);
+        return response()->json([], 204);
     }
 
-    // 抓單一學生學生選課 to list courses by one student(not api)
+    // 抓單一學生學生選課數量
+    // student_id: 學生代號
+    // 回傳選課數量
     public static function courseListByStudent($student_id)
     {
         $c_list = CourseStudent::where('student_id', '=', $student_id);
         return [
-            'list' => $c_list->get(),
             'count' => $c_list->count()
         ];
     }
