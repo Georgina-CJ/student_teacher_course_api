@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Course;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use App\CourseStudent;
 
 class CourseController extends Controller
@@ -77,12 +78,12 @@ class CourseController extends Controller
     /**
      * 查詢單一課程資料
      *
-     * @param  \App\Course  $course
+     * @param  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Course $course)
+    public function show($id)
     {
-        $courses = Course::showTeacher($course->id);
+        $courses = Course::showTeacher($id);
         return response()->json(
             ['data' => $courses->get()],
             200
